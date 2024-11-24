@@ -64,7 +64,7 @@
             </Grid>
 
 
-            <TextBox x:Name="CommandOutputTextBox" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="217" Height="84"/>
+            <TextBox x:Name="CommandOutputTextBox" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Output text box" VerticalAlignment="Top" Width="229" Height="102" Margin="10,10,0,0"/>
 
 
 

@@ -47,6 +47,7 @@ namespace GitCommitGenerator
 
         private async void GenerateCommitsButton_Click(object sender, RoutedEventArgs e)
         {
+
             if (!IsGitInstalled())
             {
                 return;
@@ -62,10 +63,12 @@ namespace GitCommitGenerator
                 return;
             }
 
+            ProgressWindow progressWindow = new ProgressWindow();
             try
             {
                 GenerateCommitsButton.IsEnabled = false;
-                ExecuteCommands(RepositoryPathTextBox.Text);
+                progressWindow.Show();
+                await ExecuteCommands(RepositoryPathTextBox.Text, progressWindow);
             }
             catch (Exception ex)
             {
@@ -73,15 +76,13 @@ namespace GitCommitGenerator
             }
             finally
             {
+                progressWindow.Close();
                 GenerateCommitsButton.IsEnabled = true;
             }
 
-
         }
 
-
-
-        public void ExecuteCommands(string folderPath)
+        public async Task ExecuteCommands(string folderPath, ProgressWindow progressWindow)
         {
 
             string authorName = $" && set GIT_AUTHOR_NAME='{AuthorTextBox.Text}'";
@@ -149,8 +150,6 @@ namespace GitCommitGenerator
                                     File.WriteAllText(filePath, commitCount.ToString());
                                 }
 
-                                processManager.RunCommand("git add CommitCounter.txt");
-
                                 if (calendar[i, j].Tag is not DateTime)
                                 {
                                     throw new InvalidOperationException(calendar[i, j].Tag.ToString());
@@ -169,8 +168,13 @@ namespace GitCommitGenerator
                                     envParams = envParams.Substring(4);
                                 }
 
-                                processManager.RunCommand($"{envParams} && git commit -m \"{commitCount}\"");
+                                await Task.Run(() =>
+                                {
+                                    processManager.RunCommand("git add CommitCounter.txt");
+                                    processManager.RunCommand($"{envParams} && git commit -m \"{commitCount}\"");
+                                });
 
+                                progressWindow.UpdateProgress(commitCount, totalCommits);
 
                                 commitCount++;
 
